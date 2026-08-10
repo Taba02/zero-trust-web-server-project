@@ -53,6 +53,8 @@ A few more measures on top of the tunnel and TLS setup:
 ## Backups for LimeSurvey
 The server also hosts a LimeSurvey instance, and I set up an automated backup routine for it using cron. This is really more of a reliability engineering task than a dev one. The job runs on a schedule, saves fresh backups, and prunes anything past a defined retention window so storage doesn't just fill up over time. Target recovery point is 24 hours, meaning at worst I'd lose a day of data if something went wrong.
 
+![LimeSurvey Automated Backups](assets/images/limesurvey-backups.png)
+
 ---
 
 ## SSH and Firewall Hardening
