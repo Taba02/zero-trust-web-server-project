@@ -23,6 +23,8 @@ To actually connect the local server to a public domain, I used a Cloudflare Tun
 
 Everything moving between the server and Cloudflare's network is encrypted, which closes off the man-in-the-middle risk that a plain outbound connection would otherwise carry.
 
+![DNS Configuration](assets/images/dns-records.png)
+
 ---
 
 ## Security Design Choices
@@ -41,15 +43,15 @@ A few more measures on top of the tunnel and TLS setup:
 * Nginx and MariaDB both locked down with least-privilege permissions and SSL enforced end to end.
 
 ![WAF Admin Geofence Block](assets/images/waf-admin-block.png)
+
 ![WAF SQLi Protection](assets/images/waf-sqli-block.png)
+
+![WAF XSS Filtering](assets/images/waf-xss-block.png)
 
 ---
 
 ## Backups for LimeSurvey
 The server also hosts a LimeSurvey instance, and I set up an automated backup routine for it using cron. This is really more of a reliability engineering task than a dev one. The job runs on a schedule, saves fresh backups, and prunes anything past a defined retention window so storage doesn't just fill up over time. Target recovery point is 24 hours, meaning at worst I'd lose a day of data if something went wrong.
-
-![WAF XSS Filtering](assets/images/waf-xss-block.png)
-![DNS Configuration](assets/images/dns-records.png)
 
 ---
 
