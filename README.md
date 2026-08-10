@@ -40,30 +40,30 @@ A few more measures on top of the tunnel and TLS setup:
 * Cloudflare WAF rules covering geofencing plus custom filters for SQL injection and XSS attempts.
 * Nginx and MariaDB both locked down with least-privilege permissions and SSL enforced end to end.
 
-![Admin Login Block WAF Rule](image-link-here)
-![SQLi Keyword Block WAF Rule](image-link-here)
+![WAF Admin Geofence Block](assets/images/waf-admin-block.png)
+![WAF SQLi Protection](assets/images/waf-sqli-block.png)
 
 ---
 
 ## Backups for LimeSurvey
 The server also hosts a LimeSurvey instance, and I set up an automated backup routine for it using cron. This is really more of a reliability engineering task than a dev one. The job runs on a schedule, saves fresh backups, and prunes anything past a defined retention window so storage doesn't just fill up over time. Target recovery point is 24 hours, meaning at worst I'd lose a day of data if something went wrong.
 
-![XSS Script Block WAF Rule](image-link-here)
-![DNS Records Configuration](image-link-here)
+![WAF XSS Filtering](assets/images/waf-xss-block.png)
+![DNS Configuration](assets/images/dns-records.png)
 
 ---
 
 ## SSH and Firewall Hardening
 On the server itself: the SSH port was moved off the default, password authentication was disabled entirely, and I generated a key pair for my own login. UFW is configured to drop everything inbound except the new SSH port and 80/443 (which, as noted, aren't even reachable from outside since there's no port forwarding). Nginx was tuned further on top of that.
 
-![Nginx Configuration Block](image-link-here)
+![Nginx Configuration](assets/images/nginx-config.png)
 
 ---
 
 ## Verifying the Setup
 A quick look at the live response headers confirms the configuration is actually doing what it's supposed to:
 
-![Live Response Headers](image-link-here)
+![Security Response Headers](assets/images/response-headers.png)
 
 * **Server obfuscation**: the response just says “cloudflare,” with `server_tokens off` hiding the Nginx version and underlying OS from anyone probing for version-specific exploits.
 * **MIME-sniffing protection (`X-Content-Type-Options: nosniff`)**: stops the browser from guessing content types, which closes off drive-by-download attacks that disguise a script as an image.
@@ -73,7 +73,7 @@ A quick look at the live response headers confirms the configuration is actually
 
 The origin server is hardened on its own, but final header delivery happens at Cloudflare's edge, so HSTS and the server-header obfuscation are enforced there too, which takes load off the origin and is faster for the end user besides.
 
-![Cloudflare Tunnel Status Log](image-link-here)
+![Cloudflare Tunnel Status](assets/images/tunnel-status.png)
 *Cloudflare Tunnel status: outbound-only connection to the Cloudflare edge*
 
 The log above shows a persistent, encrypted tunnel session to Cloudflare. Because the connection is outbound-only, I was able to close ports 80 and 443 on the local firewall entirely. The origin server isn't discoverable by direct IP scanning at all.
@@ -86,14 +86,14 @@ To actually verify the “origin shielding” claim rather than just take it on 
 ### Audit 1: Scanning the Public Domain
 First, a standard service discovery scan against my website, to see what a real visitor (or attacker) would find.
 
-![Nmap Domain Scan](image-link-here)
+![Cloudflare Edge Nmap Scan](assets/images/nmap-domain-scan.png)
 
 The domain resolves to one of Cloudflare's Anycast addresses, not my home IP, and the open ports (80, 443, 8080, 8443) all belong to Cloudflare's edge nodes. They're the ones handling SSL termination and filtering before anything reaches my infrastructure. In other words, an attacker scanning the domain only ever sees Cloudflare's hardened network, never the actual origin.
 
 ### Audit 2: Checking the Origin IP Directly
 Second, after pulling my home public IP with `curl ifconfig.me`, I ran a TCP SYN stealth scan (`-sS`) against the top 1,000 ports on the actual gateway.
 
-![Nmap Direct Origin IP Scan](image-link-here)
+![Direct Origin Nmap Scan](assets/images/nmap-origin-scan.jpg)
 
 All 1,000 ports came back filtered, confirming UFW is correctly dropping unsolicited packets at the firewall. So even though the site is live and reachable through the domain, the hardware behind it is invisible to a direct scan. With 80/443 closed at the firewall, the tunnel is the only working path in, which rules out direct-to-IP attacks and most automated bot scans.
 
