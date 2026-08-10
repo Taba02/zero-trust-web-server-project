@@ -1,8 +1,11 @@
-# Building a Secure, Publicly Reachable Web Server on Legacy Hardware
-**A Home Lab Project in Zero Trust Networking**
+# Hardened Self-Hosted Zero-Trust Web Server & Master's Thesis Platform
+
+> **Project Overview:** A production-hardened, self-hosted web server deployment built on Debian to securely host a LimeSurvey instance for Master's thesis research. Designed around a Zero Trust architecture, the environment masks origin IPs via Cloudflare Tunnels, enforces custom WAF threat mitigation, restricts administrative access, and maintains an automated database backup pipeline.
 
 ## Overview
 For this project I took an old machine that would otherwise be collecting dust and turned it into a public-facing web server, without opening up my home network in the process. Instead of the usual approach, forwarding ports 80 and 443 on the router, I built the whole thing around a Zero Trust tunnel, so the server can be reached from anywhere on the internet while the router itself stays completely closed to inbound traffic.
+
+The primary motivation behind this setup stems from my Master's thesis research on AI-driven cybercrime, specifically evaluating human detection capabilities when identifying synthetic media. Existing commercial survey platforms proved too restrictive for embedding and hosting the large, high-resolution media files required for empirical testing. To overcome this, I deployed a self-hosted LimeSurvey instance and personally configured it to support custom upload parameters. However, exposing a self-hosted application handling research data required a security-first approach, prompting me to design and execute this end-to-end server hardening project to ensure the host and my home network remained fully secured against public threats.
 
 ---
 
