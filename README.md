@@ -58,8 +58,12 @@ The server also hosts a LimeSurvey instance, and I set up an automated backup ro
 ---
 
 ## SSH and Firewall Hardening
-On the server itself: the SSH port was moved off the default, password authentication was disabled entirely, and I generated a key pair for my own login. UFW is configured to drop everything inbound except the new SSH port and 80/443 (which, as noted, aren't even reachable from outside since there's no port forwarding). Nginx was tuned further on top of that.
 
+On the server itself, SSH access was moved off default port 22 to a non-standard port (**2345**), password authentication was disabled entirely, and key-based authentication was enforced. 
+
+UFW is configured with a default-deny inbound policy, exposing only custom SSH port **2345** for local network administration. Standard web ports 80 and 443 remain completely closed at the firewall level since public traffic is handled via the outbound Cloudflare tunnel.
+
+![UFW Status](assets/images/ufw-status.png)
 ![Nginx Configuration](assets/images/nginx-config.png)
 
 ---
